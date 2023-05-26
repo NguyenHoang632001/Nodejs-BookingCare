@@ -139,6 +139,27 @@ let getScheduleForuser = async (req, res) => {
     });
   }
 };
+let getDoctorInfor = async (req, res) => {
+  try {
+    if (!req.query.doctorId) {
+      return res.status(200).json({
+        errCode: 1,
+        errMessage: "Missing require parameter for get doctor Infor",
+      });
+    } else {
+      let responese = await doctorServices.getDoctorInforService(
+        req.query.doctorId
+      );
+      return res.status(200).json(responese);
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json({
+      errCode: -1,
+      errMessage: "Errro from server",
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -148,4 +169,5 @@ module.exports = {
   getScheduleByDate,
   getExtraDoctorById,
   getScheduleForuser,
+  getDoctorInfor,
 };

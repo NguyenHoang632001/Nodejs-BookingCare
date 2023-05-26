@@ -326,7 +326,7 @@ let getScheduleForUserService = (timeType, date) => {
       let data = await db.Schedule.findOne({
         where: { timeType: timeType, date: date },
       });
-      console.log(" data for user", data);
+
       if (!data) {
         data = {};
       }
@@ -335,6 +335,63 @@ let getScheduleForUserService = (timeType, date) => {
         errMessage: "Get schedule for user success ",
         data: data,
       });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+let getDoctorInforService = (doctorId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (doctorId) {
+        let data = await db.User.findOne({
+          where: { id: doctorId },
+          attributes: {
+            exclude: ["password"],
+          },
+          include: [
+            {
+              model: db.Markdown,
+              attributes: ["description", "contentHTML", "contentMarkdown"],
+            },
+            {
+              model: db.Allcode,
+              as: "positionData",
+              attributes: ["valueEn", "valueVn"],
+            },
+            {
+              model: db.Doctor_Infor,
+              include: [
+                {
+                  model: db.Allcode,
+                  as: "priceTypeData",
+                  attributes: ["valueEn", "valueVn"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "provinceTypeData",
+                  attributes: ["valueEn", "valueVn"],
+                },
+                {
+                  model: db.Allcode,
+                  as: "paymentTypeData",
+                  attributes: ["valueEn", "valueVn"],
+                },
+              ],
+            },
+          ],
+          raw: true,
+          nest: true, //format api
+        });
+        if (!data) {
+          data = {};
+        }
+        resolve({
+          errCode: 0,
+          errMessage: "get doctorInfor success!",
+          data: data,
+        });
+      }
     } catch (error) {
       reject(error);
     }
@@ -349,4 +406,5 @@ module.exports = {
   getScheduleService,
   getExtraDoctorByIdService,
   getScheduleForUserService,
+  getDoctorInforService,
 };
