@@ -1,3 +1,4 @@
+import { response } from "express";
 import db from "../models/index";
 
 let createSpeacialtyService = (data) => {
@@ -30,6 +31,58 @@ let createSpeacialtyService = (data) => {
     }
   });
 };
+let getAllSpecialtyService = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = await db.Specialty.findAll({
+        // attributes: {
+        //   include: ["id"],
+        // },
+      });
+      if (!data) {
+        data = [];
+      }
+      resolve({
+        errCode: 0,
+        errMessage: "Get all specialty success ",
+        data: data,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+let getContentSpecialty = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!id) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing paramete",
+        });
+      } else {
+        let data = await db.Specialty.findOne({
+          where: { id: id },
+          attributes: {
+            exclude: ["image"],
+          },
+        });
+        if (!data) {
+          data = [];
+        }
+        resolve({
+          errCode: 0,
+          errMessage: "get a speacilty success!",
+          data: data,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
   createSpeacialtyService,
+  getAllSpecialtyService,
+  getContentSpecialty,
 };

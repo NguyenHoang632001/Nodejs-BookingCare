@@ -160,6 +160,20 @@ let getDoctorInfor = async (req, res) => {
     });
   }
 };
+
+let getDoctorSpecialty = async (req, res) => {
+  console.log(req.query);
+  try {
+    let data = await doctorServices.getDoctorSpecialtyService(req.query.id);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json({
+      errCode: -1,
+      errMessage: "Errro from server",
+    });
+  }
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -170,4 +184,6 @@ module.exports = {
   getExtraDoctorById,
   getScheduleForuser,
   getDoctorInfor,
+
+  getDoctorSpecialty,
 };

@@ -8,7 +8,7 @@ let getTopDoctorHome = (limit) => {
     try {
       let users = await db.User.findAll({
         // limit: limit,
-        // where: { roleId: "R2" },
+        where: { roleId: "R2" },
         // order: [["createdAt", "DESC"]],
         attributes: {
           exclude: ["password"],
@@ -46,7 +46,7 @@ let getAllDoctors = () => {
       let doctors = await db.User.findAll({
         where: { roleId: "R2" },
         attributes: {
-          exclude: ["password", "image"],
+          exclude: ["password"],
         },
       });
 
@@ -60,28 +60,25 @@ let getAllDoctors = () => {
   });
 };
 let saveDoctorsServices = (data) => {
+  console.log(data);
   let dataMarkdown = {
     contentHTML: data.contentHTML,
     contentMarkdown: data.contentMarkdown,
     description: data.discriptionDoctor,
     doctorId: data.id,
+    specialtyId: data.selectedSpecialty,
   };
   let dataDoctorInfor = {
     doctorId: data.id,
     priceId: data.selectedPrice,
     addressClinic: data.addressClinic,
+    specialtyId: data.selectedSpecialty,
     nameClinic: data.nameClinic,
     note: data.note,
     provinceId: data.selectedProvince,
     paymentId: data.selectedPayment,
   };
   return new Promise(async (resolve, reject) => {
-    // selectedProvince: this.state.selectedProvince.value,
-    // selectedPayment: this.state.selectedPayment.value,
-    // selectedPrice: this.state.selectedPrice.value,
-    // nameClinic: this.state.nameClinic,
-    // note: this.state.note,
-    // addressClinic: this.state.addressClinic,
     try {
       if (
         !data.id ||
@@ -93,17 +90,18 @@ let saveDoctorsServices = (data) => {
         !data.selectedPrice ||
         !data.nameClinic ||
         !data.note ||
-        !data.addressClinic
+        !data.addressClinic ||
+        !data.selectedSpecialty
       ) {
         resolve({
           errCode: 1,
-          errMessage: "Missing paramater",
+          errMessage: "Missing paramater!!!",
         });
       } else {
         let user = await db.Markdown.findAll({
           where: { doctorId: +data.id },
         });
-
+        console.log("dataa", user);
         if (user.length) {
           await db.Markdown.update(dataMarkdown, {
             where: { doctorId: +data.id },
@@ -117,6 +115,7 @@ let saveDoctorsServices = (data) => {
             contentMarkdown: data.contentMarkdown,
             description: data.discriptionDoctor,
             doctorId: data.id,
+            specialtyId: data.selectedSpecialty,
           });
           await db.Doctor_Infor.create({
             doctorId: data.id,
@@ -126,6 +125,7 @@ let saveDoctorsServices = (data) => {
             note: data.note,
             provinceId: data.selectedProvince,
             paymentId: data.selectedPayment,
+            specialtyId: data.selectedSpecialty,
           });
         }
 
@@ -162,6 +162,7 @@ let getDetailDoctor = async (inputId) => {
               model: db.Doctor_Infor,
               attributes: [
                 "priceId",
+                "specialtyId",
                 "provinceId",
                 "paymentId",
                 "addressClinic",
@@ -397,6 +398,34 @@ let getDoctorInforService = (doctorId) => {
     }
   });
 };
+let getDoctorSpecialtyService = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!id) {
+        resolve({
+          errCode: 1,
+          errMessage: "Missing parameter!!!",
+        });
+      } else {
+        let data = await db.Doctor_Infor.findAll({
+          where: {
+            specialtyId: id,
+          },
+        });
+        if (!data) {
+          data = [];
+        }
+        resolve({
+          errCode: 0,
+          errMessage: "Success to get doctor infor in specialty",
+          data: data,
+        });
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
   getTopDoctorHome,
   getAllDoctors,
@@ -407,4 +436,6 @@ module.exports = {
   getExtraDoctorByIdService,
   getScheduleForUserService,
   getDoctorInforService,
+
+  getDoctorSpecialtyService,
 };
